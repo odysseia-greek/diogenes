@@ -104,7 +104,7 @@ func CreateVaultClient(env string, healthCheck bool) (Client, error) {
 		if healthCheck {
 			ticks := 120 * time.Second
 			tick := 1 * time.Second
-			healthy := vaultClient.CheckHealthyStatus(ticks, tick)
+			healthy := client.CheckHealthyStatus(ticks, tick)
 			if !healthy {
 				return nil, fmt.Errorf("error getting healthy status from vault")
 			}
