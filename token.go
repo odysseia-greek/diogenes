@@ -2,13 +2,13 @@ package diogenes
 
 import (
 	vault "github.com/hashicorp/vault/api"
-	"github.com/kpango/glg"
+	"log"
 )
 
 func (v *Vault) SetOnetimeToken(token string) {
-	glg.Debugf("setting token to: %s", token)
+	log.Printf("setting token to: %s", token)
 	v.Connection.SetToken(token)
-	glg.Debug("one time token set")
+	log.Print("one time token set")
 }
 
 func (v *Vault) GetCurrentToken() string {
@@ -26,7 +26,7 @@ func (v *Vault) CreateOneTimeToken(policy []string) (string, error) {
 		Renewable:   &renew,
 	}
 
-	glg.Debug("request created")
+	log.Print("request created")
 
 	resp, err := v.Connection.Auth().Token().Create(&tokenRequest)
 	if err != nil {
