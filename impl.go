@@ -7,7 +7,7 @@ import (
 	auth "github.com/hashicorp/vault/api/auth/kubernetes"
 	"github.com/hashicorp/vault/http"
 	"github.com/hashicorp/vault/vault"
-	"github.com/kpango/glg"
+	"log"
 	"strings"
 	"testing"
 	"time"
@@ -37,20 +37,20 @@ const (
 
 func NewVaultClient(address, token string, tlsConfig *api.TLSConfig) (Client, error) {
 	//https://patorjk.com/software/taag/#p=display&f=Crawford2&t=DIOGENES
-	glg.Info("\n ___    ____  ___    ____    ___  ____     ___  _____\n|   \\  |    |/   \\  /    |  /  _]|    \\   /  _]/ ___/\n|    \\  |  ||     ||   __| /  [_ |  _  | /  [_(   \\_ \n|  D  | |  ||  O  ||  |  ||    _]|  |  ||    _]\\__  |\n|     | |  ||     ||  |_ ||   [_ |  |  ||   [_ /  \\ |\n|     | |  ||     ||     ||     ||  |  ||     |\\    |\n|_____||____|\\___/ |___,_||_____||__|__||_____| \\___|\n                                                     \n")
-	glg.Info(strings.Repeat("~", 37))
-	glg.Info("\"ἄνθρωπον ζητῶ\"")
-	glg.Info("\"I am looking for an honest man.\"")
-	glg.Info(strings.Repeat("~", 37))
+	log.Print("\n ___    ____  ___    ____    ___  ____     ___  _____\n|   \\  |    |/   \\  /    |  /  _]|    \\   /  _]/ ___/\n|    \\  |  ||     ||   __| /  [_ |  _  | /  [_(   \\_ \n|  D  | |  ||  O  ||  |  ||    _]|  |  ||    _]\\__  |\n|     | |  ||     ||  |_ ||   [_ |  |  ||   [_ /  \\ |\n|     | |  ||     ||     ||     ||  |  ||     |\\    |\n|_____||____|\\___/ |___,_||_____||__|__||_____| \\___|\n                                                     \n")
+	log.Print(strings.Repeat("~", 37))
+	log.Print("\"ἄνθρωπον ζητῶ\"")
+	log.Print("\"I am looking for an honest man.\"")
+	log.Print(strings.Repeat("~", 37))
 
 	config := api.Config{
 		Address: address,
 	}
 
-	glg.Debug(tlsConfig)
+	log.Print(tlsConfig)
 
 	if tlsConfig != nil {
-		glg.Debug(fmt.Sprintf("TLS config found setting to: %s", tlsConfig.CAPath))
+		log.Print(fmt.Sprintf("TLS config found setting to: %s", tlsConfig.CAPath))
 		err := config.ConfigureTLS(tlsConfig)
 		if err != nil {
 			return nil, err
@@ -62,13 +62,13 @@ func NewVaultClient(address, token string, tlsConfig *api.TLSConfig) (Client, er
 		return nil, fmt.Errorf("unable to initialize Vault client: %w", err)
 	}
 
-	glg.Debug("created new vault client")
+	log.Print("created new vault client")
 
 	if token != "" {
-		glg.Debugf("setting roottoken to: %s", token)
+		log.Printf("setting roottoken to: %s", token)
 		client.SetToken(token)
 	} else {
-		glg.Debug("no token set")
+		log.Print("no token set")
 	}
 
 	return &Vault{Connection: client, SecretPath: defaultPath}, nil
@@ -122,10 +122,10 @@ func CreateVaultClientKubernetes(address, vaultRole, jwt string, tlsConfig *api.
 		Address: address,
 	}
 
-	glg.Debug(tlsConfig)
+	log.Print(tlsConfig)
 
 	if tlsConfig != nil {
-		glg.Debug(fmt.Sprintf("TLS config found setting to: %s", tlsConfig.CAPath))
+		log.Print(fmt.Sprintf("TLS config found setting to: %s", tlsConfig.CAPath))
 		err := config.ConfigureTLS(tlsConfig)
 		if err != nil {
 			return nil, err

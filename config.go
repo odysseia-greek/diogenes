@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/hashicorp/vault/api"
-	"github.com/kpango/glg"
 	"io/ioutil"
+	"log"
 	"os"
 	"path/filepath"
 	"time"
@@ -32,7 +32,7 @@ func getStringFromEnv(envName, defaultValue string) string {
 	var value string
 	value = os.Getenv(envName)
 	if value == "" {
-		glg.Debugf("%s empty set as env variable - defaulting to %s", envName, defaultValue)
+		log.Printf("%s empty set as env variable - defaulting to %s", envName, defaultValue)
 		value = defaultValue
 	}
 
@@ -62,9 +62,9 @@ func CreateVaultClient(env string, healthCheck bool) (Client, error) {
 	rootPath := getStringFromEnv(EnvRootTlSDir, defaultTLSFileLocation)
 	secretPath := filepath.Join(rootPath, VAULT)
 
-	glg.Debugf("vaultAuthMethod set to %s", vaultAuthMethod)
-	glg.Debugf("secretPath set to %s", secretPath)
-	glg.Debugf("tlsEnabled set to %v", tlsEnabled)
+	log.Printf("vaultAuthMethod set to %s", vaultAuthMethod)
+	log.Printf("secretPath set to %s", secretPath)
+	log.Printf("tlsEnabled set to %v", tlsEnabled)
 
 	var tlsConfig *api.TLSConfig
 
@@ -79,13 +79,17 @@ func CreateVaultClient(env string, healthCheck bool) (Client, error) {
 		cert := fmt.Sprintf("%s/vault.crt", secretPath)
 		key := fmt.Sprintf("%s/vault.key", secretPath)
 
+		log.Print(ca)
+		log.Print(cert)
+		log.Print(key)
+
 		tlsConfig = CreateTLSConfig(insecure, ca, cert, key, secretPath)
 	}
 
 	if vaultAuthMethod == AuthMethodKube {
 		jwt, err := os.ReadFile(serviceAccountTokenPath)
 		if err != nil {
-			glg.Error(err)
+			log.Print(err)
 			return nil, err
 		}
 
@@ -93,14 +97,14 @@ func CreateVaultClient(env string, healthCheck bool) (Client, error) {
 
 		client, err := CreateVaultClientKubernetes(vaultService, vaultRole, vaultToken, tlsConfig)
 		if err != nil {
-			glg.Error(err)
+			log.Print(err)
 			return nil, err
 		}
 
 		if healthCheck {
 			ticks := 120 * time.Second
 			tick := 1 * time.Second
-			healthy := vaultClient.CheckHealthyStatus(ticks, tick)
+			healthy := client.CheckHealthyStatus(ticks, tick)
 			if !healthy {
 				return nil, fmt.Errorf("error getting healthy status from vault")
 			}
@@ -109,15 +113,15 @@ func CreateVaultClient(env string, healthCheck bool) (Client, error) {
 		vaultClient = client
 	} else {
 		if env == "LOCAL" || env == "TEST" {
-			glg.Debug("local testing, getting token from file")
+			log.Print("local testing, getting token from file")
 			localToken, err := getTokenFromFile(defaultNamespace)
 			if err != nil {
-				glg.Error(err)
+				log.Print(err)
 				return nil, err
 			}
 			client, err := NewVaultClient(vaultService, localToken, tlsConfig)
 			if err != nil {
-				glg.Error(err)
+				log.Print(err)
 				return nil, err
 			}
 
@@ -125,7 +129,7 @@ func CreateVaultClient(env string, healthCheck bool) (Client, error) {
 		} else {
 			client, err := NewVaultClient(vaultService, vaultRootToken, tlsConfig)
 			if err != nil {
-				glg.Error(err)
+				log.Print(err)
 				return nil, err
 			}
 
@@ -141,7 +145,7 @@ func getTokenFromFile(namespace string) (string, error) {
 
 	f, err := ioutil.ReadFile(clusterKeys)
 	if err != nil {
-		glg.Error(fmt.Sprintf("Cannot read fixture file: %s", err))
+		log.Print(fmt.Sprintf("Cannot read fixture file: %s", err))
 		return "", err
 	}
 

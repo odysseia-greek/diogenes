@@ -2,7 +2,7 @@ package diogenes
 
 import (
 	"fmt"
-	"github.com/kpango/glg"
+	"log"
 	"time"
 )
 
@@ -24,10 +24,10 @@ func (v *Vault) CheckHealthyStatus(ticks, tick time.Duration) bool {
 	for {
 		select {
 		case t := <-ticker.C:
-			glg.Infof("tick: %s", t)
+			log.Printf("tick: %s", t)
 			res, err := v.Health()
 			if err != nil {
-				glg.Errorf("Error getting response: %s", err)
+				log.Printf("Error getting response: %s", err)
 				continue
 			}
 			if res {

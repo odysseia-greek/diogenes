@@ -3,7 +3,7 @@ package diogenes
 import (
 	"fmt"
 	"github.com/hashicorp/vault/api"
-	"github.com/kpango/glg"
+	"log"
 )
 
 func (v *Vault) CreateNewSecret(name string, payload []byte) (bool, error) {
@@ -19,7 +19,7 @@ func (v *Vault) CreateNewSecret(name string, payload []byte) (bool, error) {
 
 func (v *Vault) GetSecret(name string) (*api.Secret, error) {
 	vaultPath := fmt.Sprintf("%s/%s", v.SecretPath, name)
-	glg.Debugf("vaultPath set to: %s", vaultPath)
+	log.Printf("vaultPath set to: %s", vaultPath)
 
 	secret, err := v.Connection.Logical().Read(vaultPath)
 	if err != nil {
